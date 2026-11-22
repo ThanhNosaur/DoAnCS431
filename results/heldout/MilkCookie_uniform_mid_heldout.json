@@ -1,0 +1,194 @@
+{
+  "model": "depth-anything/DA3-BASE",
+  "model_revision": "f4a6c9b3c95e41c82048423d3493a81ec3fa810e",
+  "coordinate_mode": "colmap_sparse + c2w",
+  "device": "cuda:0",
+  "resolution": 504,
+  "images": [
+    "/tmp/cs431_heldout/realx3d/MilkCookie/train_250/0001.JPG",
+    "/tmp/cs431_heldout/realx3d/MilkCookie/train_250/0009.JPG",
+    "/tmp/cs431_heldout/realx3d/MilkCookie/train_250/0018.JPG",
+    "/tmp/cs431_heldout/realx3d/MilkCookie/train_250/0027.JPG"
+  ],
+  "scores": {
+    "exposure": [
+      0.11768019944429398,
+      0.10305075347423553,
+      0.14786462485790253,
+      0.1581590473651886
+    ],
+    "exposure_bridge": [
+      0.6553017856839544,
+      0.4988424816562414,
+      0.7555503526160854,
+      0.5124366323594234
+    ],
+    "overlap": [
+      0.21527777777777776,
+      0.38628472222222215,
+      0.11458333333333333,
+      0.4435763888888889
+    ],
+    "combined": [
+      0.4577762306800006,
+      0.412928759894459,
+      0.5,
+      0.5264778611040494
+    ]
+  },
+  "selection_seconds": 0.5483552030000283,
+  "runs": {
+    "saddle_balanced": {
+      "reference_index": null,
+      "inference_seconds": 1.576851751999925,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.8746004060487161,
+      "valid_pose_pairs": 6,
+      "f1": 0.5279409974060172,
+      "precision": 0.7448655869093338,
+      "recall": 0.40886784927777486,
+      "f1_10cm": 0.7475398122258747,
+      "median_pred_to_gt_m": 0.02869317321496168,
+      "median_gt_to_pred_m": 0.06516795969116616,
+      "scale_to_metres": 4.433046271499584,
+      "metric_seconds": 1.7267687769999611
+    },
+    "exposure": {
+      "reference_index": 3,
+      "inference_seconds": 1.5849580120000155,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.9027423620780377,
+      "valid_pose_pairs": 6,
+      "f1": 0.541277155038999,
+      "precision": 0.7613590432487696,
+      "recall": 0.419899194830267,
+      "f1_10cm": 0.7444982659413488,
+      "median_pred_to_gt_m": 0.02451139053926704,
+      "median_gt_to_pred_m": 0.06424269676991176,
+      "scale_to_metres": 4.5101767104195005,
+      "metric_seconds": 1.6448596150000867
+    },
+    "exposure_bridge": {
+      "reference_index": 2,
+      "inference_seconds": 1.6150529230000075,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.9135580438211178,
+      "valid_pose_pairs": 6,
+      "f1": 0.5430693142702985,
+      "precision": 0.7826035277896639,
+      "recall": 0.4158030214577059,
+      "f1_10cm": 0.7345420680010382,
+      "median_pred_to_gt_m": 0.023346063242517128,
+      "median_gt_to_pred_m": 0.06612355440402423,
+      "scale_to_metres": 3.782263663764415,
+      "metric_seconds": 1.7195827379999855
+    },
+    "overlap": {
+      "reference_index": 3,
+      "inference_seconds": 1.5849580120000155,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.9027423620780377,
+      "valid_pose_pairs": 6,
+      "f1": 0.541277155038999,
+      "precision": 0.7613590432487696,
+      "recall": 0.419899194830267,
+      "f1_10cm": 0.7444982659413488,
+      "median_pred_to_gt_m": 0.02451139053926704,
+      "median_gt_to_pred_m": 0.06424269676991176,
+      "scale_to_metres": 4.5101767104195005,
+      "metric_seconds": 1.6448596150000867
+    },
+    "combined": {
+      "reference_index": 3,
+      "inference_seconds": 1.5849580120000155,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.9027423620780377,
+      "valid_pose_pairs": 6,
+      "f1": 0.541277155038999,
+      "precision": 0.7613590432487696,
+      "recall": 0.419899194830267,
+      "f1_10cm": 0.7444982659413488,
+      "median_pred_to_gt_m": 0.02451139053926704,
+      "median_gt_to_pred_m": 0.06424269676991176,
+      "scale_to_metres": 4.5101767104195005,
+      "metric_seconds": 1.6448596150000867
+    }
+  },
+  "sweep": [
+    {
+      "reference_index": 0,
+      "inference_seconds": 1.5781893429999627,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.8746004060487161,
+      "valid_pose_pairs": 6,
+      "f1": 0.5279409974060172,
+      "precision": 0.7448655869093338,
+      "recall": 0.40886784927777486,
+      "f1_10cm": 0.7475398122258747,
+      "median_pred_to_gt_m": 0.02869317321496168,
+      "median_gt_to_pred_m": 0.06516795969116616,
+      "scale_to_metres": 4.433046271499584,
+      "metric_seconds": 1.8909718610000255
+    },
+    {
+      "reference_index": 1,
+      "inference_seconds": 1.6036258530000396,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.8923545226491809,
+      "valid_pose_pairs": 6,
+      "f1": 0.45904133971771716,
+      "precision": 0.6382219260880946,
+      "recall": 0.3584161334512476,
+      "f1_10cm": 0.6780673175438897,
+      "median_pred_to_gt_m": 0.03142022668233299,
+      "median_gt_to_pred_m": 0.07944211782034423,
+      "scale_to_metres": 4.680765574481719,
+      "metric_seconds": 1.997335373999931
+    },
+    {
+      "reference_index": 2,
+      "inference_seconds": 1.6150529230000075,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.9135580438211178,
+      "valid_pose_pairs": 6,
+      "f1": 0.5430693142702985,
+      "precision": 0.7826035277896639,
+      "recall": 0.4158030214577059,
+      "f1_10cm": 0.7345420680010382,
+      "median_pred_to_gt_m": 0.023346063242517128,
+      "median_gt_to_pred_m": 0.06612355440402423,
+      "scale_to_metres": 3.782263663764415,
+      "metric_seconds": 1.7195827379999855
+    },
+    {
+      "reference_index": 3,
+      "inference_seconds": 1.5849580120000155,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.9027423620780377,
+      "valid_pose_pairs": 6,
+      "f1": 0.541277155038999,
+      "precision": 0.7613590432487696,
+      "recall": 0.419899194830267,
+      "f1_10cm": 0.7444982659413488,
+      "median_pred_to_gt_m": 0.02451139053926704,
+      "median_gt_to_pred_m": 0.06424269676991176,
+      "scale_to_metres": 4.5101767104195005,
+      "metric_seconds": 1.6448596150000867
+    }
+  ],
+  "oracle_f1": {
+    "reference_index": 2,
+    "inference_seconds": 1.6150529230000075,
+    "peak_cuda_mib": 1936.99658203125,
+    "auc10": 0.9135580438211178,
+    "valid_pose_pairs": 6,
+    "f1": 0.5430693142702985,
+    "precision": 0.7826035277896639,
+    "recall": 0.4158030214577059,
+    "f1_10cm": 0.7345420680010382,
+    "median_pred_to_gt_m": 0.023346063242517128,
+    "median_gt_to_pred_m": 0.06612355440402423,
+    "scale_to_metres": 3.782263663764415,
+    "metric_seconds": 1.7195827379999855
+  }
+}

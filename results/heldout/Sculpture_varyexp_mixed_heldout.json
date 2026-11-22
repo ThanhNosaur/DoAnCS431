@@ -1,0 +1,194 @@
+{
+  "model": "depth-anything/DA3-BASE",
+  "model_revision": "f4a6c9b3c95e41c82048423d3493a81ec3fa810e",
+  "coordinate_mode": "colmap_sparse + c2w",
+  "device": "cuda:0",
+  "resolution": 504,
+  "images": [
+    "/tmp/cs431_heldout/realx3d/Sculpture/train_60/0001.JPG",
+    "/tmp/cs431_heldout/realx3d/Sculpture/train_160/0011.JPG",
+    "/tmp/cs431_heldout/realx3d/Sculpture/train_250/0021.JPG",
+    "/tmp/cs431_heldout/realx3d/Sculpture/train_400/0032.JPG"
+  ],
+  "scores": {
+    "exposure": [
+      0.32747724652290344,
+      0.2097618132829666,
+      0.07802093774080276,
+      0.032505035400390625
+    ],
+    "exposure_bridge": [
+      0.36332188031165574,
+      0.5857563420173596,
+      0.3162445232084681,
+      0.06696593827267865
+    ],
+    "overlap": [
+      0.4210069444444444,
+      0.203125,
+      0.2604166666666667,
+      0.4522569444444444
+    ],
+    "combined": [
+      0.722904265280238,
+      0.5,
+      0.3552323817247912,
+      0.5
+    ]
+  },
+  "selection_seconds": 1.0933733130000292,
+  "runs": {
+    "saddle_balanced": {
+      "reference_index": null,
+      "inference_seconds": 1.6008595040000273,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.8625139137379185,
+      "valid_pose_pairs": 6,
+      "f1": 0.08803055606548345,
+      "precision": 0.3110491229729091,
+      "recall": 0.05127033104197224,
+      "f1_10cm": 0.22606863865850366,
+      "median_pred_to_gt_m": 0.09869112972323857,
+      "median_gt_to_pred_m": 0.347387362107283,
+      "scale_to_metres": 5.624147981403593,
+      "metric_seconds": 7.4048982359998945
+    },
+    "exposure": {
+      "reference_index": 0,
+      "inference_seconds": 1.6318195220000007,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.7991440136181781,
+      "valid_pose_pairs": 6,
+      "f1": 0.11068777061280043,
+      "precision": 0.3690000236568806,
+      "recall": 0.06510918324354893,
+      "f1_10cm": 0.2619838241469452,
+      "median_pred_to_gt_m": 0.0789046856228915,
+      "median_gt_to_pred_m": 0.34448084485360425,
+      "scale_to_metres": 7.168383012286112,
+      "metric_seconds": 7.187550450000003
+    },
+    "exposure_bridge": {
+      "reference_index": 1,
+      "inference_seconds": 1.6198071530000107,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.8612998191841988,
+      "valid_pose_pairs": 6,
+      "f1": 0.08803055606548345,
+      "precision": 0.3110491229729091,
+      "recall": 0.05127033104197224,
+      "f1_10cm": 0.22606863865850366,
+      "median_pred_to_gt_m": 0.09869112972323857,
+      "median_gt_to_pred_m": 0.347387362107283,
+      "scale_to_metres": 5.624147981403593,
+      "metric_seconds": 7.4490316900000835
+    },
+    "overlap": {
+      "reference_index": 3,
+      "inference_seconds": 1.6128103989999545,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.8001137816161888,
+      "valid_pose_pairs": 6,
+      "f1": 0.09064654790269033,
+      "precision": 0.3255197861721503,
+      "recall": 0.052654554220993556,
+      "f1_10cm": 0.22826574152406975,
+      "median_pred_to_gt_m": 0.09294751820112822,
+      "median_gt_to_pred_m": 0.3626369362861125,
+      "scale_to_metres": 6.799930205272415,
+      "metric_seconds": 7.3988473220000515
+    },
+    "combined": {
+      "reference_index": 0,
+      "inference_seconds": 1.6318195220000007,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.7991440136181781,
+      "valid_pose_pairs": 6,
+      "f1": 0.11068777061280043,
+      "precision": 0.3690000236568806,
+      "recall": 0.06510918324354893,
+      "f1_10cm": 0.2619838241469452,
+      "median_pred_to_gt_m": 0.0789046856228915,
+      "median_gt_to_pred_m": 0.34448084485360425,
+      "scale_to_metres": 7.168383012286112,
+      "metric_seconds": 7.187550450000003
+    }
+  },
+  "sweep": [
+    {
+      "reference_index": 0,
+      "inference_seconds": 1.6318195220000007,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.7991440136181781,
+      "valid_pose_pairs": 6,
+      "f1": 0.11068777061280043,
+      "precision": 0.3690000236568806,
+      "recall": 0.06510918324354893,
+      "f1_10cm": 0.2619838241469452,
+      "median_pred_to_gt_m": 0.0789046856228915,
+      "median_gt_to_pred_m": 0.34448084485360425,
+      "scale_to_metres": 7.168383012286112,
+      "metric_seconds": 7.187550450000003
+    },
+    {
+      "reference_index": 1,
+      "inference_seconds": 1.6198071530000107,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.8612998191841988,
+      "valid_pose_pairs": 6,
+      "f1": 0.08803055606548345,
+      "precision": 0.3110491229729091,
+      "recall": 0.05127033104197224,
+      "f1_10cm": 0.22606863865850366,
+      "median_pred_to_gt_m": 0.09869112972323857,
+      "median_gt_to_pred_m": 0.347387362107283,
+      "scale_to_metres": 5.624147981403593,
+      "metric_seconds": 7.4490316900000835
+    },
+    {
+      "reference_index": 2,
+      "inference_seconds": 1.620588373999908,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.7369373561943915,
+      "valid_pose_pairs": 6,
+      "f1": 0.09456870989208373,
+      "precision": 0.34529550827423167,
+      "recall": 0.05478679301822049,
+      "f1_10cm": 0.21770632014491725,
+      "median_pred_to_gt_m": 0.09457394354578448,
+      "median_gt_to_pred_m": 0.34820060255618546,
+      "scale_to_metres": 6.32161996754375,
+      "metric_seconds": 7.913441072000069
+    },
+    {
+      "reference_index": 3,
+      "inference_seconds": 1.6128103989999545,
+      "peak_cuda_mib": 1936.99658203125,
+      "auc10": 0.8001137816161888,
+      "valid_pose_pairs": 6,
+      "f1": 0.09064654790269033,
+      "precision": 0.3255197861721503,
+      "recall": 0.052654554220993556,
+      "f1_10cm": 0.22826574152406975,
+      "median_pred_to_gt_m": 0.09294751820112822,
+      "median_gt_to_pred_m": 0.3626369362861125,
+      "scale_to_metres": 6.799930205272415,
+      "metric_seconds": 7.3988473220000515
+    }
+  ],
+  "oracle_f1": {
+    "reference_index": 0,
+    "inference_seconds": 1.6318195220000007,
+    "peak_cuda_mib": 1936.99658203125,
+    "auc10": 0.7991440136181781,
+    "valid_pose_pairs": 6,
+    "f1": 0.11068777061280043,
+    "precision": 0.3690000236568806,
+    "recall": 0.06510918324354893,
+    "f1_10cm": 0.2619838241469452,
+    "median_pred_to_gt_m": 0.0789046856228915,
+    "median_gt_to_pred_m": 0.34448084485360425,
+    "scale_to_metres": 7.168383012286112,
+    "metric_seconds": 7.187550450000003
+  }
+}
