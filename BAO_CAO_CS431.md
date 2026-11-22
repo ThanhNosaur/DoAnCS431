@@ -51,6 +51,24 @@ Với mỗi tập $N$ ảnh RGB đầu vào (giới hạn cạnh dài 504 px khi
 | `varyexp_mixed` | 0.3852 | 0.4051 | 0.4052 | 0.4129 | **0.4404** | **`+0.0551`** | **6 / 0 / 3** | 0.4954 | **0.1686** | 0.8536 | 0.8491 |
 | `uniform_mid` | 0.3391 | 0.3682 | 0.3684 | 0.3800 | **0.3932** | **`+0.0541`** | **6 / 2 / 1** | 0.4045 | 0.1107 | 0.8494 | **0.8568** |
 
+### 4.3. Mở rộng có huấn luyện trên 4 cảnh train → kiểm thử trên 5 cảnh giữ lại (Hướng A & Hướng B)
+
+Hai hướng huấn luyện nhẹ đều được train **chỉ trên 4 cảnh pilot** trên 1 GPU Kaggle T4 (peak VRAM **1,90 GB**, ~10 phút cho Hướng B) và đánh giá trên **5 cảnh giữ lại**:
+- **Hướng A (`LearnedReferenceScorer`, ~6K tham số)**: mạng xếp hạng hoán vị-đẳng biến học từ 14 đặc trưng RGB + DINOv2 CLS token (48 tập 4 góc nhìn, listwise KL loss).
+- **Hướng B (`Exposure-Consistency LoRA`, `rank=4`, 110.592 tham số = 0,082% DA3-Base, 441 KB)**: chưng cất tự giám sát thầy-trò (không cần nhãn 3D) giữa ảnh `varyexp` và `uniform_mid` trên `qkv`/`proj` của 6 block cuối DINOv2 (160 bước, `res=336`, 20% bước đồng nhất ảnh sạch).
+
+| Điều kiện (`n = 5` held-out) | Base + Def | Base + Comb (v2) | Base + A (Learned) | LoRA + Def (B) | **LoRA + Comb (B+v2)** | **Δ vs Base+Def** | LoRA + AB |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `default_json` — **F1 @ 5 cm** | 0.3420 | 0.4067 | 0.3111 | 0.3566 | **0.4183** | **`+0.0763`** | 0.3271 |
+| `varyexp_mixed` — **F1 @ 5 cm** | 0.3347 | 0.4184 | 0.3178 | 0.3460 | **0.4236** | **`+0.0889`** | 0.3238 |
+| `uniform_mid` — **F1 @ 5 cm** | 0.2884 | 0.3321 | 0.3223 | 0.2926 | **0.3387** | **`+0.0503`** | 0.3251 |
+| `default_json` — AUC@10° | 0.8639 | 0.8283 | 0.8711 | 0.8668 | 0.8320 | `-0.0319` | **0.8726** |
+| `varyexp_mixed` — AUC@10° | 0.8490 | 0.8568 | 0.8272 | 0.8527 | **0.8613** | **`+0.0123`** | 0.8313 |
+| `uniform_mid` — AUC@10° | 0.8433 | 0.8580 | 0.8322 | 0.8451 | **0.8615** | **`+0.0182`** | 0.8385 |
+
+- **Hướng B (`LoRA`) cải thiện nhất quán và cộng hưởng với `Combined (v2)`**: `LoRA + Comb` đạt F1 cao nhất trên **cả 3/3 điều kiện** (`+7,63%`, `+8,89%`, `+5,03%` so với DA3 gốc), vượt cả `Base + Comb` về cả F1 lẫn AUC@10° ở mọi điều kiện, và thậm chí vượt mức trần `Oracle F1` của DA3 gốc trên `default_json` (`0.4183 > 0.4160`) và `uniform_mid` (`0.3387 > 0.3366`).
+- **Hướng A (`LearnedReferenceScorer`) bị overfit** (loss giảm `0.6522 → 0.0523` trên 4 cảnh train nhưng F1 trên 5 cảnh mới kém `Combined`), cho thấy với tập huấn luyện ít cảnh (4 cảnh), công thức chọn ảnh vật lý-hình học không tham số (`Combined`) tổng quát hóa tốt hơn mạng xếp hạng học trực tiếp.
+
 ## 5. Phân tích và kết luận
 
 1. **Xác nhận H1**: Biên độ chênh lệch F1 khi đổi ảnh tham chiếu (`Span F1`) trên điều kiện lệch phơi sáng (`0.1869` trên `default_json`, `0.1686` trên `varyexp_mixed`; trên tập giữ lại là `0.1677` và `0.1833`) lớn hơn rõ rệt so với phơi sáng đồng đều (`0.1107` trên 9 cảnh và `0.0885` trên 5 cảnh giữ lại).
@@ -62,4 +80,5 @@ Với mỗi tập $N$ ảnh RGB đầu vào (giới hạn cạnh dài 504 px khi
 
 - **Notebook Kaggle (pilot 4 cảnh)**: `notebooks/cs431-da3-exposure-v2.ipynb` ([Kaggle](https://www.kaggle.com/code/ngtunthanh/cs431-da3-exposure-experiment-v2))
 - **Notebook Kaggle (held-out 5 cảnh)**: `notebooks/cs431-da3-exposure-heldout.ipynb` ([Kaggle](https://www.kaggle.com/code/ngtunthanh/cs431-da3-exposure-heldout-eval))
-- **Dữ liệu kết quả đầy đủ**: `results/pilot/summary_v2.csv`, `results/heldout/summary_heldout.csv` và 27 tệp JSON chi tiết từng cảnh.
+- **Notebook Kaggle (huấn luyện Hướng A & B)**: `notebooks/cs431-da3-train-ab.ipynb` ([Kaggle](https://www.kaggle.com/code/ngtunthanh/cs431-da3-train-a-and-b-experiment))
+- **Dữ liệu kết quả & trọng số**: `results/pilot/summary_v2.csv`, `results/heldout/summary_heldout.csv`, `results/train_ab/summary_ab.csv` và checkpoint LoRA `results/train_ab/da3_lora_r4.pt` (441 KB).
