@@ -10,6 +10,6 @@
 ## Mean AUC@10 on 5 Held-out Scenes
 | Condition | Base+Def | Base+Combined | Base+A (Learned) | LoRA+Def (B) | LoRA+Combined | LoRA+AB |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| default_json | 0.8639 | 0.8283 | 0.8711 | 0.8668 | 0.832 | 0.8726 |
-| varyexp_mixed | 0.849 | 0.8568 | 0.8272 | 0.8527 | 0.8613 | 0.8313 |
-| uniform_mid | 0.8433 | 0.858 | 0.8322 | 0.8451 | 0.8615 | 0.8385 |
+| default_json | 0.8609 | 0.8298 | 0.8768 | 0.8643 | 0.8331 | 0.8785 |
+| varyexp_mixed | 0.8526 | 0.8573 | 0.8325 | 0.8553 | 0.8615 | 0.8367 |
+| uniform_mid | 0.8469 | 0.8584 | 0.8321 | 0.8486 | 0.8615 | 0.8384 |

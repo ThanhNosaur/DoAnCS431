@@ -1,0 +1,23 @@
+{
+  "pose_metric": "mean AUC@10 of both directed poses per unordered camera pair",
+  "model": "depth-anything/DA3-BASE",
+  "model_revision": "f4a6c9b3c95e41c82048423d3493a81ec3fa810e",
+  "upstream_commit": "3d835ec1a5802d64a8b8b15f817a1ab54809bfe4",
+  "resolution": 504,
+  "gpu": "Tesla T4",
+  "torch": "2.11.0+cu130",
+  "retrained": false,
+  "checkpoint_sha256": {
+    "learned_selector_A.pt": "5edd733edaf8ecddf0e1abdf039466dd35a5cf51b0d3cea9508f7bfa1b56ec14",
+    "da3_lora_r4.pt": "975720942773ca95e28d966a194c817bf318782b655f1348af52826af09f36d7"
+  },
+  "source_sha256": {
+    "__init__.py": "79e6c5b10c8dbcce52d0c82cc31200d8380e8ee0d073454b681f92e82fba36da",
+    "geometry.py": "59f76d0fa75bd85e77821d2a53b6769a64caeede96e99be6aa14d683ffaf5f2e",
+    "learned_selector.py": "3fae96c6cb87cdc24155fcef04d6d3baeab5f789f9af6ac992b04382e45e5f01",
+    "lora_adapt.py": "7f28316f9429f29376380767b59e717aaa3bdcbb80a7ac8a9a360be204fdf04e",
+    "reference.py": "01b4c63d90a681ae1ec5cc7ad3134e37060c0f4651407a89f53f49f656e78c7a",
+    "run_experiment.py": "db5f0ab76c8f3f0fea4ebc2a87a71e859754508a137a676480e4362d589a970b",
+    "test_experiment.py": "1674917707c9172980b56f071bbade2b172cf5fcc22f3da6bc67623526716ddd"
+  }
+}

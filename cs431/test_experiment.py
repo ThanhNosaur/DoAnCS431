@@ -34,6 +34,24 @@ class ReferenceSelectionTests(unittest.TestCase):
 
 
 class GeometryTests(unittest.TestCase):
+    def test_pose_auc_is_invariant_to_view_order(self):
+        gt = np.repeat(np.eye(4)[None], 3, axis=0)
+        gt[:, 0, 3] = [0, 1, 2]
+
+        def rotate_z(degrees):
+            angle = np.deg2rad(degrees)
+            c, s = np.cos(angle), np.sin(angle)
+            return np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
+
+        pred = gt.copy()
+        pred[:, :3, :3] = [rotate_z(degrees) for degrees in (-5, 0, 5)]
+        pred[:, :3, 3] = gt[:, :3, 3] @ rotate_z(6).T
+        forward = relative_pose_metrics(pred, gt)
+        reverse = relative_pose_metrics(pred[::-1], gt[::-1])
+        self.assertAlmostEqual(forward["auc10"], reverse["auc10"])
+        self.assertAlmostEqual(forward["auc10"], 13 / 60)
+        self.assertEqual(forward["valid_pose_pairs"], 3)
+
     def test_voxel_sample_does_not_depend_on_view_order(self):
         points = np.array([[0.003, 0, 0], [0.007, 0, 0], [0.02, 0, 0]])
         np.testing.assert_allclose(voxel_sample(points), voxel_sample(points[::-1]))

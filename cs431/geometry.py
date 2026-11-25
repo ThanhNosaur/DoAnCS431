@@ -36,6 +36,8 @@ def predicted_poses(extrinsics):
 
 def relative_pose_metrics(pred_c2w, gt_c2w):
     i, j = np.triu_indices(len(gt_c2w), k=1)
+    # Translation directions can have different errors in the two camera frames.
+    i, j = np.concatenate((i, j)), np.concatenate((j, i))
     pred = np.linalg.inv(pred_c2w[j]) @ pred_c2w[i]
     gt = np.linalg.inv(gt_c2w[j]) @ gt_c2w[i]
     pred_t, gt_t = pred[:, :3, 3], gt[:, :3, 3]
@@ -54,7 +56,7 @@ def relative_pose_metrics(pred_c2w, gt_c2w):
     errors = np.maximum(rotation, translation)[valid]
     return {
         "auc10": float(np.clip(1 - errors / 10, 0, 1).mean()),
-        "valid_pose_pairs": int(valid.sum()),
+        "valid_pose_pairs": int(valid.sum()) // 2,
     }
 
 
