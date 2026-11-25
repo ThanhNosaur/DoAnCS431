@@ -99,15 +99,18 @@ def _read_colmap_images(sparse_dir: Path) -> dict[str, np.ndarray]:
                     raise ValueError(f"Ambiguous COLMAP pose for image name {name}.")
                 by_name[name] = np.linalg.inv(w2c)
     elif txt_path.is_file():
-        lines = [
+        lines = iter(
             line.strip()
             for line in txt_path.read_text(encoding="utf-8").splitlines()
-            if line.strip() and not line.lstrip().startswith("#")
-        ]
-        for line in lines[::2]:
+            if not line.lstrip().startswith("#")
+        )
+        for line in lines:
+            if not line:
+                continue
             parts = line.split()
             qw, qx, qy, qz, tx, ty, tz = map(float, parts[1:8])
             img_name = " ".join(parts[9:])
+            next(lines, None)  # The POINTS2D line can be empty.
             w2c = np.eye(4, dtype=float)
             w2c[:3, :3] = _qvec_to_rotmat((qw, qx, qy, qz))
             w2c[:3, 3] = (tx, ty, tz)
@@ -184,6 +187,9 @@ def main():
     parser.add_argument("--colmap-to-world", type=Path, help="Override the pose-to-scan transform.")
     parser.add_argument("--sweep", action="store_true", help="Try every image as the reference.")
     parser.add_argument("--model", default=DA3_BASE, help="Hub ID or checkpoint path.")
+    parser.add_argument(
+        "--lora-weights", type=Path, help="Evaluate the saved DA3-Base adapter with Combined selection."
+    )
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--resolution", type=int, default=504)
     parser.add_argument("--output", type=Path, help="Write the JSON report to a new file.")
@@ -204,6 +210,10 @@ def main():
         parser.error("--colmap-to-world requires --gt-cloud.")
     if args.resolution < 14:
         parser.error("--resolution must be at least 14 pixels.")
+    if args.lora_weights and args.model != DA3_BASE:
+        parser.error("--lora-weights requires the pinned DA3-Base model.")
+    if args.lora_weights and not args.lora_weights.is_file():
+        parser.error(f"LoRA checkpoint does not exist: {args.lora_weights}")
     if args.output and args.output.exists():
         parser.error(f"Output already exists: {args.output}")
 
@@ -287,6 +297,19 @@ def main():
         "colmap_to_world": str(transform_path) if transform_path else None,
         **evaluate_views(images, infer, args.sweep),
     }
+    if args.lora_weights:
+        from cs431.lora_adapt import attach_lora_to_da3, load_lora_weights
+
+        attach_lora_to_da3(model)
+        load_lora_weights(model, args.lora_weights)
+        ref_idx = report["runs"]["combined"]["reference_index"]
+        order = [ref_idx] + [i for i in range(len(images)) if i != ref_idx]
+        report["lora_weights"] = str(args.lora_weights)
+        report["runs"]["lora_combined"] = {
+            "reference_index": ref_idx,
+            **infer([images[i] for i in order], "first", order),
+        }
+
     payload = json.dumps(report, indent=2, allow_nan=False) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

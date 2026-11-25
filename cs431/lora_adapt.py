@@ -74,11 +74,20 @@ def save_lora_weights(model, path: Path) -> None:
 
 
 def load_lora_weights(model, path: Path) -> None:
-    state = torch.load(path, map_location="cpu")
-    own = dict(model.named_parameters())
-    for name, tensor in state.items():
-        if name in own:
-            own[name].data.copy_(tensor.to(own[name].device, own[name].dtype))
+    state = torch.load(path, map_location="cpu", weights_only=True)
+    own = {
+        name: param
+        for name, param in model.named_parameters()
+        if name.rsplit(".", 1)[-1] in ("lora_a", "lora_b")
+    }
+    if not own or own.keys() != state.keys():
+        raise ValueError(f"LoRA checkpoint keys do not match the attached adapter: {path}")
+    for name, param in own.items():
+        if state[name].shape != param.shape:
+            raise ValueError(f"Unexpected LoRA tensor shape for {name}: {state[name].shape}")
+    with torch.no_grad():
+        for name, param in own.items():
+            param.copy_(state[name])
 
 
 def _grad_loss(log_s: torch.Tensor, log_t: torch.Tensor, weight: torch.Tensor) -> torch.Tensor:

@@ -1,4 +1,4 @@
-# CS431 Experiment Results v2 (coordinate_mode=colmap_sparse + c2w)
+# CS431 Pilot Results (coordinate_mode=colmap_sparse + c2w)
 
 ## Per-scene results
 | Scene | Condition | Default F1 | Exposure F1 | Bridge F1 | Overlap F1 | Combined F1 | Oracle F1 | Span F1 | Default AUC10 | Combined AUC10 |

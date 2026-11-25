@@ -1,4 +1,5 @@
 import unittest
+import tempfile
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -8,7 +9,7 @@ from PIL import Image
 
 from cs431.geometry import cloud_metrics, relative_pose_metrics, to_metric_poses, voxel_sample
 from cs431.reference import reference_scores
-from cs431.run_experiment import evaluate_views, load_views
+from cs431.run_experiment import evaluate_views, load_colmap_views, load_views
 
 
 class ReferenceSelectionTests(unittest.TestCase):
@@ -78,6 +79,22 @@ class GeometryTests(unittest.TestCase):
 
 
 class ExperimentTests(unittest.TestCase):
+    def test_colmap_text_loader_keeps_empty_points_line(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            paths = [root / f"view {i}.jpg" for i in range(3)]
+            for path in paths:
+                path.touch()
+            (root / "images.txt").write_text(
+                "# Image records\n"
+                "1 1 0 0 0 0 0 0 1 view 0.jpg\n\n"
+                "2 1 0 0 0 -1 0 0 1 view 1.jpg\n10 20 -1\n"
+                "3 1 0 0 0 -2 0 0 1 view 2.jpg\n\n",
+                encoding="utf-8",
+            )
+            _, poses = load_colmap_views(root, paths[::-1])
+            np.testing.assert_array_equal(poses[:, 0, 3], [2, 1, 0])
+
     def test_image_order_and_ablation_reuse(self):
         images = [Image.new("RGB", (2, 2), (i, i, i)) for i in range(4)]
         calls = []
@@ -102,7 +119,6 @@ class ExperimentTests(unittest.TestCase):
 
     def test_scene_loader_reads_blender_camera_centres_and_safe_paths(self):
         import json
-        import tempfile
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

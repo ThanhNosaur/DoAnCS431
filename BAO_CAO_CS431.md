@@ -6,11 +6,13 @@
 
 Khi tái dựng 3D từ nhiều góc nhìn thiếu sáng hoặc lệch phơi sáng, Depth Anything 3 (DA3) chọn một ảnh tham chiếu ngay trong quá trình suy luận (mặc định là chiến lược `saddle_balanced` dựa trên đặc trưng DINOv2). Nếu ảnh tham chiếu quá tối, mất chi tiết hoặc quá khác biệt về phơi sáng so với các góc nhìn còn lại, chất lượng đám mây điểm 3D suy giảm đáng kể.
 
-Đồ án kiểm chứng hai giả thuyết trên bộ dữ liệu thực **RealX3D (`data4_varyexp`)** với mô hình **DA3-Base** cố định (không huấn luyện lại):
+Đồ án dùng **RealX3D (`data4_varyexp`)** để kiểm tra hai giả thuyết với **DA3-Base** cố định, sau đó đo mức cải thiện khi gắn Exposure-Consistency LoRA.
 - **H1**: Độ nhạy của chất lượng tái dựng (`F1 @ 5 cm`) theo lựa chọn ảnh tham chiếu lớn hơn ở điều kiện lệch phơi sáng so với điều kiện phơi sáng đồng đều.
 - **H2**: Một bộ xếp hạng ảnh tham chiếu chỉ dùng ảnh RGB đầu vào — kết hợp chất lượng phơi sáng trung tâm và độ chồng lấp hình học — cải thiện F1 so với mặc định `saddle_balanced` trên các cảnh giữ lại mà không làm suy giảm ảnh phơi sáng đồng đều.
 
-## 2. Phương pháp đề xuất (chỉ dùng RGB, không huấn luyện lại)
+## 2. Phương pháp đề xuất
+
+### Chọn ảnh tham chiếu bằng Combined
 
 Với mỗi tập $N$ ảnh RGB đầu vào (giới hạn cạnh dài 504 px khi chấm điểm, ~0,5–1,0 giây/cảnh trên CPU):
 
@@ -22,6 +24,10 @@ Với mỗi tập $N$ ảnh RGB đầu vào (giới hạn cạnh dài 504 px khi
    - Trích xuất SIFT (`nfeatures=2000`, `contrastThreshold=0.02`), lọc tỷ lệ `0.80` hai chiều và kiểm tra hình học bằng ma trận cơ bản RANSAC (`3.0 px`, tối thiểu 8 cặp). Điểm cặp dựa trên độ phủ lưới $4 \times 4$ và số điểm hỗ trợ, lấy trung bình qua mọi cặp chứa ảnh $i$.
 3. **Kết hợp (`combined`)**:
    - Chuẩn hóa min-max từng nhánh để cân bằng thang đo, sau đó lấy trung bình $s_i = 0.5\,\tilde{e}_i^{\text{bridge}} + 0.5\,\tilde{o}_i$. Đưa ảnh có $s_i$ cao nhất lên đầu danh sách và gọi `ref_view_strategy="first"` của DA3 trên **ảnh RGB gốc**.
+
+### Thích nghi phơi sáng bằng LoRA
+
+Mô hình giáo viên là DA3-Base đóng băng, nhận các ảnh phơi sáng đồng đều. Mô hình học viên dùng cùng DA3-Base với LoRA và nhận ảnh cùng góc nhìn ở các mức phơi sáng khác nhau. Hàm mất mát khuyến khích đầu ra độ sâu và tư thế camera nhất quán. Khi suy luận, Combined chọn ảnh tham chiếu rồi DA3 gắn LoRA tái dựng cảnh.
 
 ## 3. Thiết lập thí nghiệm
 
@@ -57,7 +63,7 @@ Hai hướng huấn luyện nhẹ đều được train **chỉ trên 4 cảnh p
 - **Hướng A (`LearnedReferenceScorer`, ~6K tham số)**: mạng xếp hạng hoán vị-đẳng biến học từ 14 đặc trưng RGB + DINOv2 CLS token (48 tập 4 góc nhìn, listwise KL loss).
 - **Hướng B (`Exposure-Consistency LoRA`, `rank=4`, 110.592 tham số = 0,082% DA3-Base, 441 KB)**: chưng cất tự giám sát thầy-trò (không cần nhãn 3D) giữa ảnh `varyexp` và `uniform_mid` trên `qkv`/`proj` của 6 block cuối DINOv2 (160 bước, `res=336`, 20% bước đồng nhất ảnh sạch).
 
-| Điều kiện (`n = 5` held-out) | Base + Def | Base + Comb (v2) | Base + A (Learned) | LoRA + Def (B) | **LoRA + Comb (B+v2)** | **Δ vs Base+Def** | LoRA + AB |
+| Điều kiện (`n = 5` held-out) | DA3 mặc định | DA3 + Combined | DA3 + bộ chọn học được | LoRA + mặc định | **LoRA + Combined** | **Δ so với DA3 mặc định** | LoRA + bộ chọn học được |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | `default_json` — **F1 @ 5 cm** | 0.3420 | 0.4067 | 0.3111 | 0.3566 | **0.4183** | **`+0.0763`** | 0.3271 |
 | `varyexp_mixed` — **F1 @ 5 cm** | 0.3347 | 0.4184 | 0.3178 | 0.3460 | **0.4236** | **`+0.0889`** | 0.3238 |
@@ -66,19 +72,17 @@ Hai hướng huấn luyện nhẹ đều được train **chỉ trên 4 cảnh p
 | `varyexp_mixed` — AUC@10° | 0.8490 | 0.8568 | 0.8272 | 0.8527 | **0.8613** | **`+0.0123`** | 0.8313 |
 | `uniform_mid` — AUC@10° | 0.8433 | 0.8580 | 0.8322 | 0.8451 | **0.8615** | **`+0.0182`** | 0.8385 |
 
-- **Hướng B (`LoRA`) cải thiện nhất quán và cộng hưởng với `Combined (v2)`**: `LoRA + Comb` đạt F1 cao nhất trên **cả 3/3 điều kiện** (`+7,63%`, `+8,89%`, `+5,03%` so với DA3 gốc), vượt cả `Base + Comb` về cả F1 lẫn AUC@10° ở mọi điều kiện, và thậm chí vượt mức trần `Oracle F1` của DA3 gốc trên `default_json` (`0.4183 > 0.4160`) và `uniform_mid` (`0.3387 > 0.3366`).
-- **Hướng A (`LearnedReferenceScorer`) bị overfit** (loss giảm `0.6522 → 0.0523` trên 4 cảnh train nhưng F1 trên 5 cảnh mới kém `Combined`), cho thấy với tập huấn luyện ít cảnh (4 cảnh), công thức chọn ảnh vật lý-hình học không tham số (`Combined`) tổng quát hóa tốt hơn mạng xếp hạng học trực tiếp.
+- **LoRA + Combined có F1 trung bình cao nhất trong các cấu hình đã thử** trên cả ba điều kiện, hơn DA3 mặc định lần lượt **7,63**, **8,89** và **5,03 điểm phần trăm F1**. So với DA3 + Combined, phần tăng khi thêm LoRA là **1,16**, **0,52** và **0,66 điểm phần trăm F1**. Ở `default_json`, AUC@10° vẫn thấp hơn DA3 mặc định **3,19 điểm phần trăm**.
+- **Bộ chọn học được có F1 trung bình thấp hơn Combined** trên cả ba điều kiện giữ lại, dù loss huấn luyện giảm từ `0.6522` xuống `0.0523` trên bốn cảnh huấn luyện.
 
 ## 5. Phân tích và kết luận
 
 1. **Xác nhận H1**: Biên độ chênh lệch F1 khi đổi ảnh tham chiếu (`Span F1`) trên điều kiện lệch phơi sáng (`0.1869` trên `default_json`, `0.1686` trên `varyexp_mixed`; trên tập giữ lại là `0.1677` và `0.1833`) lớn hơn rõ rệt so với phơi sáng đồng đều (`0.1107` trên 9 cảnh và `0.0885` trên 5 cảnh giữ lại).
-2. **Xác nhận H2**: Phương pháp `combined` vượt DA3 mặc định (`saddle_balanced`) và vượt cả 3 nhánh riêng lẻ ở mọi điều kiện — tăng **`+6,47%` đến `+8,37%` F1** trên 5 cảnh giữ lại (tổng 9 cảnh: **`+3,93%` đến `+5,51%` F1**, đặc biệt đạt **0 cảnh thua** trên `default_json` và tiệm cận mức trần `Oracle F1`), đồng thời vẫn cải thiện **`+4,37%` đến `+5,41%` F1** trên điều kiện đồng đều `uniform_mid`.
+2. **H2 được ủng hộ trên tập giữ lại**. Combined tăng F1 trung bình so với DA3 mặc định **6,47** và **8,37 điểm phần trăm** trên hai điều kiện lệch phơi sáng, và **4,37 điểm phần trăm** trên `uniform_mid`. Bảng kết quả theo cảnh cho thấy mức cải thiện thay đổi theo cảnh và điều kiện chụp.
 3. **Phạm vi so sánh**: Cải thiện được kiểm chứng công bằng so với baseline DA3 gốc trong cùng giao thức đo (4 góc nhìn, `DA3-Base`, căn chỉnh Sim(3), F1 điểm–điểm 5 cm). Không so sánh trực tiếp trị số tuyệt đối với Bảng 15 của bài báo RealX3D (39,2% / 63,6%) do khác số góc nhìn và giao thức ICP điểm–bề mặt.
-4. **Giới hạn**: Thử nghiệm thực hiện trên 4 ảnh/cảnh và 9 cảnh trong nhóm `varyexp` của RealX3D; một số cảnh ít kết cấu như `Sculpture` có F1 tuyệt đối thấp (~0,09–0,11) do hạn chế chung của tái dựng thưa 4 góc nhìn.
+4. **Giới hạn**. Thử nghiệm dùng bốn ảnh mỗi cảnh, với năm cảnh giữ lại để đánh giá. Trong `varyexp_mixed`, mức phơi sáng tăng theo thứ tự góc nhìn, nên hiệu ứng phơi sáng có thể đi cùng hiệu ứng góc nhìn. Cảnh `Sculpture` có F1 thấp trong giao thức đã đo.
 
 ## 6. Tài liệu & tái lập
 
-- **Notebook Kaggle (pilot 4 cảnh)**: `notebooks/cs431-da3-exposure-v2.ipynb` ([Kaggle](https://www.kaggle.com/code/ngtunthanh/cs431-da3-exposure-experiment-v2))
-- **Notebook Kaggle (held-out 5 cảnh)**: `notebooks/cs431-da3-exposure-heldout.ipynb` ([Kaggle](https://www.kaggle.com/code/ngtunthanh/cs431-da3-exposure-heldout-eval))
-- **Notebook Kaggle (huấn luyện Hướng A & B)**: `notebooks/cs431-da3-train-ab.ipynb` ([Kaggle](https://www.kaggle.com/code/ngtunthanh/cs431-da3-train-a-and-b-experiment))
-- **Dữ liệu kết quả & trọng số**: `results/pilot/summary_v2.csv`, `results/heldout/summary_heldout.csv`, `results/train_ab/summary_ab.csv` và checkpoint LoRA `results/train_ab/da3_lora_r4.pt` (441 KB).
+- [Notebook tái lập RealX3D](notebooks/realx3d.ipynb) chạy các bước chuẩn bị, huấn luyện và đánh giá.
+- [Kết quả pilot](results/pilot/summary.csv), [kết quả giữ lại](results/heldout/summary.csv), [so sánh các cấu hình huấn luyện](results/train_ab/summary_ab.csv) và [checkpoint LoRA](results/train_ab/da3_lora_r4.pt).
